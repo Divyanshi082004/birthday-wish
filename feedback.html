@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Feedback — Neon</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="dark">
+<nav class="topnav neon-line"><a href="index.html">Home</a> <span>•</span> <a href="wish.html">Wishes</a> <span>•</span> <a href="game.html">Game</a> <span>•</span> <a href="gallery.html">Gallery</a></nav>
+<main class="container neon-card">
+<h1 class="neon-title">Feedback</h1>
+<form id="fbForm">
+<input id="fbName" placeholder="Your name" />
+<input id="fbEmail" placeholder="Email (optional)" />
+<textarea id="fbMsg" rows="4" placeholder="Your message"></textarea>
+<div class="actions"><button type="submit">Send</button> <button type="button" id="viewSaved">View Saved</button></div>
+</form>
+</main>
+<script src="script.js"></script>
+<script>
+const form = document.getElementById('fbForm'); form.addEventListener('submit', e=>{ e.preventDefault(); const name=document.getElementById('fbName').value||'Anonymous'; const email=document.getElementById('fbEmail').value||''; const msg=document.getElementById('fbMsg').value||''; const saved = JSON.parse(localStorage.getItem('bd_feedbacks')||'[]'); saved.push({name,email,msg,date:new Date().toISOString()}); localStorage.setItem('bd_feedbacks', JSON.stringify(saved)); alert('Thank you — feedback saved locally.'); form.reset(); });
+document.getElementById('viewSaved').addEventListener('click', ()=>{ const saved = JSON.parse(localStorage.getItem('bd_feedbacks')||'[]'); if(!saved.length) return alert('No feedback yet.'); const w = window.open('', '_blank', 'width=600,height=600'); w.document.write('<pre>'+JSON.stringify(saved,null,2)+'</pre>'); });
+</script>
+</body>
+</html>

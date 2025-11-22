@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎉 Birthday Party 🎉</title>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+    body {
+        margin: 0;
+        font-family: 'Poppins', sans-serif;
+        color: white;
+        text-align: center;
+        overflow-y: auto;
+        background: linear-gradient(-45deg, #ff0077, #0026ff, #00f0ff, #8b00ff);
+        background-size: 400% 400%;
+        animation: gradient 6s ease infinite;
+    }
+
+    body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: url("https://static.vecteezy.com/system/resources/previews/003/123/185/original/saber-neon-glow-color-flowing-rectangle-background-free-photo.jpg");
+        opacity: 0.35;
+        z-index: -1;
+        filter: brightness(1.3);
+        pointer-events: none;
+    }
+
+    @keyframes gradient {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    .container {
+        padding: 60px 20px;
+        margin-top: 5vh;
+    }
+
+    .neon-title {
+        font-size: 3.3rem;
+        letter-spacing: 2px;
+        text-shadow: 0 0 10px #ff00f7, 0 0 40px #00eaff, 0 0 60px #f900ff;
+        animation: glow 2s infinite alternate;
+    }
+
+    @keyframes glow {
+        from { text-shadow: 0 0 15px #ff3df7; }
+        to { text-shadow: 0 0 40px cyan, 0 0 60px #ff00ea; }
+    }
+
+    .welcome {
+        margin-top: 10px;
+        font-size: 22px;
+        animation: fadeIn 2s ease-in-out;
+    }
+
+    input {
+        width: 75%;
+        padding: 13px;
+        margin-top: 18px;
+        background: rgba(255,255,255,0.08);
+        border: 2px solid #ff00ea;
+        border-radius: 12px;
+        color: white;
+        font-size: 1.2rem;
+        text-align: center;
+        transition: 0.3s;
+        backdrop-filter: blur(6px);
+    }
+
+    input:focus {
+        box-shadow: 0 0 20px cyan;
+        border-color: cyan;
+    }
+
+    .actions {
+        margin-top: 35px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        width: 75%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    button {
+        padding: 15px;
+        border-radius: 12px;
+        border: 2px solid #ff00ea;
+        background: rgba(0,0,0,0.35);
+        color: white;
+        font-size: 19px;
+        cursor: pointer;
+        text-shadow: 0 0 10px #ff4cff;
+        transition: 0.25s;
+    }
+
+    button:hover {
+        transform: scale(1.08);
+        background: #ff00ea;
+        box-shadow: 0 0 20px cyan, 0 0 40px #ff00ea;
+    }
+
+    .hint {
+        margin-top: 12px;
+        font-size: 0.95rem;
+        opacity: 0.8;
+        animation: pulse 2s infinite alternate;
+    }
+
+    @keyframes pulse {
+        from { opacity: 0.5; }
+        to { opacity: 1; }
+    }
+
+    .music-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(6px);
+        border-radius: 50%;
+        border: 2px solid #ff00ea;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        animation: float 2s infinite alternate ease-in-out;
+        transition: 0.3s;
+    }
+
+    .music-btn:hover {
+        transform: scale(1.1);
+    }
+
+    @keyframes float {
+        from { transform: translateY(0px); }
+        to { transform: translateY(-10px); }
+    }
+
+    .music-btn img {
+        width: 30px;
+        filter: drop-shadow(0px 0px 10px cyan);
+    }
+
+</style>
+</head>
+
+<body>
+
+<!-- Background Music -->
+<audio id="bgMusic" loop>
+    <source src="assets/happy-birthday-357371.mp3" type="audio/mpeg">
+</audio>
+
+<div class="container">
+    <h1 class="neon-title">🎉 Birthday Party 🎉</h1>
+
+    <p id="welcomeMsg" class="welcome"></p>
+
+    <input id="nameInput" placeholder="Enter Your Name... ✨">
+
+    <div class="actions">
+        <button onclick="goPage('wish.html')">💌 Wishes & Shayari</button>
+        <button onclick="goPage('game.html')">🎮 Surprise Game</button>
+        <button onclick="goPage('gallery.html')">📸 Birthday Card</button>
+        <button onclick="goPage('feedback.html')">📝 Feedback</button>
+        <button onclick="shareSite()">🔗 Share 🎉</button>
+    </div>
+
+    <p class="hint">✨ Name auto saved — no need to type again 🎀</p>
+</div>
+
+<!-- Music Button -->
+<button class="music-btn" onclick="toggleMusic()">
+    <img id="musicIcon" src="https://cdn-icons-png.flaticon.com/512/727/727218.png">
+</button>
+
+<script>
+function goPage(page){
+    let name = document.getElementById("nameInput").value.trim();
+    if(name) localStorage.setItem("bd_name", name);
+    window.location.href = page;
+}
+
+let savedName = localStorage.getItem("bd_name");
+
+if(savedName){
+    document.getElementById("nameInput").value = savedName;
+    document.getElementById("welcomeMsg").textContent = `✨ Welcome ${savedName}! Your party is ready 🎊`;
+}
+
+// Music Control
+let music = document.getElementById("bgMusic");
+let playing = false; // start paused
+let icon = document.getElementById("musicIcon");
+
+// Play music on first user interaction
+document.body.addEventListener('click', () => {
+    if(!playing){
+        music.play().catch(err => console.log(err));
+        playing = true;
+    }
+}, {once: true});
+
+function toggleMusic(){
+    if(playing){
+        music.pause();
+        icon.src = "https://cdn-icons-png.flaticon.com/512/727/727245.png";
+        playing = false;
+    } else {
+        music.play();
+        icon.src = "https://cdn-icons-png.flaticon.com/512/727/727218.png";
+        playing = true;
+    }
+}
+
+// Share Function
+function shareSite() {
+    const mainPageUrl = "https://yourusername.github.io/birthday-site/"; // replace with your URL
+
+    const shareData = {
+        title: 'Birthday Party 🎉',
+        text: 'Join me for this amazing Birthday Party website!',
+        url: mainPageUrl
+    }
+
+    if (navigator.share) {
+        navigator.share(shareData).catch(err => console.log('Share canceled', err));
+    } else {
+        navigator.clipboard.writeText(shareData.url).then(() => {
+            alert('🎉 Link copied to clipboard! Share it with friends!');
+        }).catch(err => {
+            alert('Unable to copy link. Here is the URL: ' + shareData.url);
+        });
+    }
+}
+
+</script>
+
+</body>
+</html>

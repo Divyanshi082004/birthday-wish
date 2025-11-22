@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Surprise Game — Special Edition</title>
+<link rel="stylesheet" href="style.css">
+<style>
+body{
+background: url("assets/bg.jpg") center/cover fixed; 
+backdrop-filter: blur(4px);
+}
+nav { text-align:center; margin-bottom:15px; }
+.tab-buttons { display:flex; justify-content:center; gap:10px; margin-top:10px; }
+.tab-buttons button{
+padding:8px 15px; border:1px solid #ff00ff; background:black; color:#fff; cursor:pointer; border-radius:8px;
+}
+.tab-buttons button.active{ background:#ff00ff; color:black; }
+
+.game-section{ display:none; margin-top:20px; }
+
+.balloon { width:50px; height:50px; border-radius:50%; text-align:center; line-height:50px; position:absolute; cursor:pointer; font-size:22px; }
+.neon{ box-shadow:0 0 10px cyan; }
+.popped{ transform:scale(0); transition:0.4s; }
+
+#ticBoard{ width:200px; display:grid; grid-template-columns:repeat(3,1fr); gap:5px; margin:auto; }
+.cell{ width:60px; height:60px; background:#111; border:1px solid #0ff; color:#0ff; display:flex; align-items:center; justify-content:center; font-size:30px; cursor:pointer; }
+
+#truthText, #dareText{ font-size:20px; margin:15px auto; color:#fff; text-align:center;}
+
+.answer-box{ width:90%; padding:10px; border-radius:8px; border:none; margin:10px auto; display:block; background:#111; color:#fff; }
+
+.memory-grid{
+width:250px; margin:auto; display:grid; grid-template-columns:repeat(4,1fr); gap:10px;
+}
+.card{
+width:60px; height:60px; background:#111; color:white; display:flex;
+align-items:center; justify-content:center; font-size:26px; cursor:pointer;
+border:1px solid cyan; border-radius:6px;
+}
+.card.flipped{ background:#ff27ff; color:black; }
+</style>
+</head>
+
+<body class="dark">
+<nav class="topnav neon-line"><a href="index.html">Home</a> • <a href="wish.html">Wishes</a> • <a href="gallery.html">Gallery</a> • <a href="feedback.html">Feedback</a></nav>
+
+<main class="container neon-card">
+<h1 class="neon-title">🎮 Fun Playground</h1>
+
+<div class="tab-buttons">
+<button class="tabBtn active" data-tab="balloonGame">🎈 Balloons</button>
+<button class="tabBtn" data-tab="ticGame">❌⭕ Tic Tac Toe</button>
+<button class="tabBtn" data-tab="truthGame">✨ Truth & Dare</button>
+<button class="tabBtn" data-tab="memoryGame">🃏 Memory Match</button>
+</div>
+
+<!------------------- Balloon Game ------------------>
+<section id="balloonGame" class="game-section" style="display:block;">
+<h2>Pop the Balloons 🎉</h2>
+<div id="gameArea" style="height:300px; position:relative;"></div>
+<button id="startBalloon">Start</button>
+<button id="resetBalloon">Reset</button>
+</section>
+
+<!------------------- TICTACTOE ------------------>
+<section id="ticGame" class="game-section">
+<h2>❌ Tic Tac Toe ⭕</h2>
+<div id="ticBoard"></div>
+<button onclick="restartTic()">Restart</button>
+</section>
+
+<!------------------- Truth & Dare ------------------>
+<section id="truthGame" class="game-section">
+<h2>✨ Truth & Dare ✨</h2>
+<button onclick="showTruth()">Truth</button>
+<button onclick="showDare()">Dare</button>
+<p id="truthText"></p>
+<textarea id="answer" class="answer-box" placeholder="Write your answer..."></textarea>
+<button onclick="saveAnswer()">Save Answer</button>
+<p id="savedResponse" style="color:#0ff;text-align:center;margin-top:10px;"></p>
+</section>
+
+<!------------------- Memory Game ------------------>
+<section id="memoryGame" class="game-section">
+<h2>🃏 Memory Match Game</h2>
+<div class="memory-grid" id="memoryGrid"></div>
+<button onclick="startMemory()">Restart</button>
+</section>
+
+</main>
+
+<script>
+/* ------------ TAB SWITCHING ----------- */
+document.querySelectorAll(".tabBtn").forEach(btn=>{
+btn.onclick=()=>{
+document.querySelectorAll(".tabBtn").forEach(b=>b.classList.remove("active"));
+btn.classList.add("active");
+document.querySelectorAll(".game-section").forEach(sec=>sec.style.display="none");
+document.getElementById(btn.dataset.tab).style.display="block";
+};
+});
+
+/* ---------- Balloon Game ----------- */
+let balloonArea=document.getElementById("gameArea");
+let balloons=[];
+
+function makeBalloons(){
+balloonArea.innerHTML="";
+balloons=[];
+const colors=["#ff49b5","#00fff0","#ffe500","#00ff89"];
+for(let i=0;i<6;i++){
+let b=document.createElement("div");
+b.className="balloon neon";
+b.style.left=(5+Math.random()*80)+"%";
+b.style.top=(5+Math.random()*70)+"%";
+b.style.background=colors[i%colors.length];
+b.innerHTML="🎈";
+b.addEventListener("click",()=>{
+b.style.transform="scale(0)";
+b.dataset.pop="1";
+checkWin();
+});
+balloonArea.appendChild(b);
+balloons.push(b);
+}
+}
+
+function checkWin(){
+if(balloons.every(x=>x.dataset.pop==="1")){
+setTimeout(()=>alert("🎉 Winner! All balloons popped!"),400);
+}
+}
+
+document.getElementById("startBalloon").onclick=makeBalloons;
+document.getElementById("resetBalloon").onclick=makeBalloons;
+makeBalloons();
+
+/* ---------- TIC TAC TOE ----------- */
+const ticBoard=document.getElementById("ticBoard");
+let turn="X";
+let cells=[];
+
+function initTic(){
+ticBoard.innerHTML="";
+cells=[];
+for(let i=0;i<9;i++){
+let c=document.createElement("div"); c.className="cell";
+c.onclick=()=>play(i);
+ticBoard.appendChild(c);
+cells.push(c);
+}
+}
+function play(i){
+if(cells[i].innerHTML) return;
+cells[i].innerHTML=turn;
+if(check()){ alert(turn+" Wins 🎉"); return; }
+turn=turn==="X"?"O":"X";
+}
+function check(){
+let w=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+return w.some(([a,b,c])=>cells[a].innerHTML && cells[a].innerHTML===cells[b].innerHTML && cells[b].innerHTML===cells[c].innerHTML);
+}
+function restartTic(){ turn="X"; initTic(); }
+initTic();
+
+/* -------- Truth & Dare -------- */
+const truths=["What reminds you of love?", "One memory you'll never forget?", "A secret dream?"];
+const dares=["Sing happy birthday loudly 🎤", "Send a cute selfie 📸", "Say something sweet 💖"];
+
+function showTruth(){ document.getElementById("truthText").innerHTML="Truth: "+ truths[Math.floor(Math.random()*truths.length)]; }
+function showDare(){ document.getElementById("truthText").innerHTML="Dare: "+ dares[Math.floor(Math.random()*dares.length)]; }
+
+function saveAnswer(){
+let ans=document.getElementById("answer").value.trim();
+if(!ans) return alert("Write something 😆");
+document.getElementById("savedResponse").innerHTML="✔ Saved: " + ans;
+}
+
+/* ------- Memory Game -------- */
+let memoryCards=["🍫","🍫","🎀","🎀","💖","💖","🎂","🎂"];
+let first=null,lock=false;
+
+function startMemory(){
+memoryCards.sort(()=>Math.random()-0.5);
+const grid=document.getElementById("memoryGrid");
+grid.innerHTML="";
+first=null;
+memoryCards.forEach(symbol=>{
+let card=document.createElement("div");
+card.className="card";
+card.onclick=()=>flip(card,symbol);
+grid.appendChild(card);
+});
+}
+
+function flip(card,symbol){
+if(lock || card.classList.contains("flipped")) return;
+card.innerHTML=symbol; card.classList.add("flipped");
+if(!first){ first=card; return; }
+if(first.innerHTML!==symbol){
+lock=true;
+setTimeout(()=>{
+card.innerHTML=""; card.classList.remove("flipped");
+first.innerHTML=""; first.classList.remove("flipped");
+first=null; lock=false;
+},700);
+} else {
+first=null;
+if([...document.querySelectorAll(".card:not(.flipped)")].length===0)
+setTimeout(()=>alert("🎉 You completed the match!"),500);
+}
+}
+
+startMemory();
+</script>
+
+</body>
+</html>

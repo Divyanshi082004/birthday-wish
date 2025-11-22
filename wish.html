@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Birthday Wishes</title>
+
+<style>
+body{
+background:url("https://images.pexels.com/photos/1935370/pexels-photo-1935370.jpeg?cs=srgb") center/cover fixed;
+font-family: 'Poppins', sans-serif;
+color:white;
+text-align:center;
+padding:20px;
+}
+
+h1{ font-size:40px;margin-bottom:20px;text-shadow:0 0 20px #ff00ff;color:#ffb7ff; }
+
+.card{
+background:rgba(0,0,0,0.6);
+padding:20px;
+border-radius:20px;
+width:90%;
+max-width:500px;
+margin:auto;
+box-shadow:0 0 20px #ff00ff;
+backdrop-filter:blur(6px);
+}
+
+.button{
+background:#ff00ff;
+color:black;
+padding:12px 20px;
+border:none;
+border-radius:10px;
+cursor:pointer;
+margin-top:10px;
+font-weight:bold;
+transition:0.3s;
+}
+.button:hover{ transform:scale(1.08); background:#00ffe7;}
+
+#cardPhoto{
+width:180px;
+height:180px;
+margin:auto;
+border-radius:15px;
+border:2px solid #ff00ff;
+background-size:cover;
+background-position:center;
+box-shadow:0 0 15px #00ffea;
+margin-bottom:15px;
+display:none;
+}
+
+textarea{
+width:90%;
+max-width:400px;
+padding:10px;
+border-radius:10px;
+border:2px solid #ff00ff;
+background:black;
+color:white;
+margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+
+<h1>🎉 Birthday Wishes 🎉</h1>
+
+<div class="card">
+<h2 id="greet"></h2>
+<p id="displayShayari" style="font-size:20px;min-height:90px;"></p>
+
+<div id="cardPhoto"></div>
+
+<button class="button" id="nextBtn">Next Shayari ➜</button>
+<button class="button" id="saveBtn">❤️ Save this Shayari</button>
+<button class="button" id="addPhotoBtn">📷 Add Photo</button>
+<input id="photoInput" type="file" accept="image/*" style="display:none" />
+<button class="button" id="downloadCard">⬇ Download Card</button>
+</div>
+
+<br>
+
+<h3>✍ Add Your Own Shayari</h3>
+<textarea id="customShayari" placeholder="Write here..."></textarea>
+<button class="button" id="addShayariBtn">Add</button>
+
+<br><br>
+
+<h3>⭐ Saved Favourites</h3>
+<ul id="savedList"></ul>
+
+<canvas id="canvas" style="display:none;"></canvas>
+<nav class="topnav neon-line"><a href="index.html">Home</a> • <a href="wish.html">Wishes</a> • <a href="gallery.html">Gallery</a> • <a href="feedback.html">Feedback</a></nav>
+
+<script>
+const shayaris = [
+"Janamdin mubarak ho, tumhari har khwahish puri ho ❤️",
+"Aaj tumhari khushi me, dil mera bhi khush hai 💕",
+"Tum ho to life colourful hai, happy birthday 🎉",
+"Khuda kare tumhara har din ek nayi khushi laaye 💖",
+"Tumhari muskurahat hi sabse khoobsurat gift hai 😊",
+"Dil se dua hai tum sada muskurati raho ❤️",
+"Aaj tumhare liye sitare bhi chamak rahe hain ✨",
+"Khushiyaan tum pe kurbaan ho, happy birthday 🥳",
+"Zindagi me har mod par success tumhari rahe ⭐",
+"Aaj tumhara din hai, enjoy every second 💓",
+"Flowers ki tarah khilte raho — happy birthday 🌸",
+"Smile rakhna tumpe bohot suit karta hai 😊",
+"Jitni khoobsurat tum ho, utna hi pyaara ye din 💕",
+"Har saal tum aur bhi magical banti jao ✨",
+"Aaj har pal special hai — just like you 💜"
+];
+
+let index = 0;
+document.getElementById("greet").textContent = "Happy Birthday ❤️";
+
+function showShayari(){
+document.getElementById("displayShayari").textContent = shayaris[index];
+index = (index + 1) % shayaris.length;
+}
+showShayari();
+
+document.getElementById("nextBtn").addEventListener("click", showShayari);
+
+/* Add Custom Shayari */
+document.getElementById("addShayariBtn").addEventListener("click", ()=>{
+let c = document.getElementById("customShayari").value.trim();
+if(c){ shayaris.push(c); document.getElementById("customShayari").value=""; alert("Added ✔"); }
+});
+
+/* Save Favourites */
+document.getElementById("saveBtn").addEventListener("click", ()=>{
+let fav=document.getElementById("savedList");
+let li=document.createElement("li");
+li.textContent=document.getElementById("displayShayari").textContent;
+fav.appendChild(li);
+});
+
+/* Photo Upload */
+document.getElementById("addPhotoBtn").addEventListener("click",()=>document.getElementById("photoInput").click());
+document.getElementById("photoInput").addEventListener("change",(e)=>{
+let f=e.target.files[0];
+if(!f) return;
+let reader=new FileReader();
+reader.onload=ev=>{
+document.getElementById("cardPhoto").style.backgroundImage=`url(${ev.target.result})`;
+document.getElementById("cardPhoto").style.display="block";
+document.getElementById("cardPhoto").dataset.src=ev.target.result;
+};
+reader.readAsDataURL(f);
+});
+
+/* Download Card */
+document.getElementById("downloadCard").addEventListener("click", async ()=>{
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
+canvas.width=800; canvas.height=500;
+ctx.fillStyle="black"; ctx.fillRect(0,0,800,500);
+ctx.fillStyle="#ff00ff"; ctx.font="36px Arial";
+ctx.fillText("Happy Birthday ❤️", 260,60);
+ctx.fillStyle="white"; ctx.font="24px Arial"; wrapText(ctx,document.getElementById("displayShayari").textContent,200,120,500,30);
+
+const imgSrc=document.getElementById("cardPhoto").dataset.src;
+if(imgSrc){ let img=new Image(); img.src=imgSrc; await img.decode(); ctx.drawImage(img,20,120,160,160); }
+
+let a=document.createElement("a");
+a.href=canvas.toDataURL(); a.download="birthday-card.png"; a.click();
+});
+
+function wrapText(ctx,text,x,y,max,lineHeight){
+let words=text.split(" "),line="";
+for(let w of words){
+let test=line+w+" ";
+if(ctx.measureText(test).width>max){
+ctx.fillText(line,x,y);
+line=w+" ";
+y+=lineHeight;
+}else line=test;
+}
+ctx.fillText(line,x,y);
+}
+</script>
+</body>
+</html>
